@@ -1,8 +1,8 @@
 /// MainPage.vue
 
 <template>
-    <Display/>
     <Navbar/>
+    <Display/>
     <Editor_panel/>
 </template>
 
