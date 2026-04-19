@@ -1,60 +1,66 @@
 <template>
-  <section class="flex gap-6 p-6 bg-gray-100 min-h-96">
-    
-    <!-- Upload Box -->
-    <div
-      class="w-1/2 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-center p-8 bg-white hover:border-blue-400 transition cursor-pointer"
-      @dragover.prevent
-      @drop.prevent="handleDrop"
-      @click="triggerFile"
-    >
-      <Upload class="w-10 h-10 text-gray-500 mb-4" />
+  <section class="flex flex-col md:flex-row gap-6 px-4 md:p-6 bg-gray-100 min-h-96">
 
-      <p class="text-gray-600">
-        Drag & drop video here or
-        <span class="text-blue-500 font-medium">browse files</span>
-      </p>
+    <!-- LEFT PANEL: switches based on activeTool -->
+    <div class="w-full md:w-1/2">
 
-      <p class="text-sm text-gray-400 mt-2">
-        Supported formats: MP4, MOV, AVI
-      </p>
+      <!-- UPLOAD panel (default or when activeTool === 'upload') -->
+      <div
+        v-if="!activeTool || activeTool === 'upload'"
+        class="h-full border-2 border-dashed border-blue-300 rounded-xl flex flex-col items-center justify-center text-center p-6 md:p-8 bg-white hover:border-blue-400 transition cursor-pointer"
+        @dragover.prevent
+        @drop.prevent="handleDrop"
+        @click="triggerFile"
+      >
+        <Upload class="w-8 h-8 md:w-10 md:h-10 text-gray-500 mb-3 md:mb-4" />
+        <p class="text-gray-600 text-sm md:text-base">
+          Drag & drop video here or
+          <span class="text-blue-500 font-medium">browse files</span>
+        </p>
+        <p class="text-xs md:text-sm text-gray-400 mt-2">
+          Supported formats: MP4, MOV, AVI
+        </p>
+        <input
+          type="file"
+          ref="fileInput"
+          class="hidden"
+          accept="video/*"
+          @change="handleFile"
+        />
+      </div>
 
-      <input
-        type="file"
-        ref="fileInput"
-        class="hidden"
-        accept="video/*"
-        @change="handleFile"
-      />
+      <!-- TEXT panel -->
+      
+
+      <!-- EFFECTS panel -->
+     
     </div>
 
-    <!-- Video Preview -->
-    <div class="w-1/2 bg-white rounded-xl border border-gray-200 flex flex-col justify-between">
-      
+    <!-- RIGHT PANEL: Video Preview (always visible) -->
+    <div class="w-full md:w-1/2 bg-white rounded-xl border border-gray-200 flex flex-col justify-between">
+
       <!-- Preview Area -->
-      <div class="flex-1 flex items-center justify-center">
+      <div class="flex-1 flex items-center justify-center min-h-50 md:min-h-75">
         <div v-if="!videoUrl" class="text-center text-gray-400">
-          <PlayCircle class="w-12 h-12 mx-auto mb-2" />
-          <p>Video Preview</p>
+          <PlayCircle class="w-10 h-10 md:w-12 md:h-12 mx-auto mb-2" />
+          <p class="text-sm md:text-base">Video Preview</p>
         </div>
 
         <video
           v-else
           ref="videoRef"
           :src="videoUrl"
-          class="w-full h-full rounded-t-xl"
+          class="w-full h-full object-contain rounded-t-xl"
           @timeupdate="updateTime"
           @loadedmetadata="setDuration"
         />
       </div>
 
       <!-- Controls -->
-      <div class="flex items-center justify-between px-4 py-3 border-t">
-        
-        <div class="flex items-center gap-3">
-          <Volume2 class="w-5 h-5 cursor-pointer" @click="toggleMute" />
+      <div class="flex flex-wrap items-center justify-between gap-3 px-3 md:px-4 py-3 border-t">
 
-          <!-- ✅ Skip Back -->
+        <div class="flex items-center gap-3 flex-wrap">
+          <Volume2 class="w-5 h-5 cursor-pointer" @click="toggleMute" />
           <SkipBack class="w-5 h-5 cursor-pointer" @click="skipback" />
 
           <button
@@ -68,7 +74,7 @@
           <SkipForward class="w-5 h-5 cursor-pointer" @click="skipForward" />
         </div>
 
-        <div class="text-sm text-gray-500">
+        <div class="text-xs md:text-sm text-gray-500">
           {{ currentTime }} / {{ duration }}
         </div>
 
@@ -93,96 +99,52 @@ import {
   Maximize
 } from "lucide-vue-next";
 
+const props = defineProps({
+  activeTool: {
+    type: String,
+    default: null
+  }
+});
+
+// ── File / Video ──────────────────────────────────────
 const fileInput = ref(null);
-const videoRef = ref(null);
-
-const videoUrl = ref(null);
+const videoRef  = ref(null);
+const videoUrl  = ref(null);
 const isPlaying = ref(false);
-
 const currentTime = ref("00:00");
-const duration = ref("00:00");
+const duration    = ref("00:00");
 
-// Format time helper
 const formatTime = (time) => {
-  const minutes = Math.floor(time / 60);
-  const seconds = Math.floor(time % 60);
-  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  const m = Math.floor(time / 60);
+  const s = Math.floor(time % 60);
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 };
 
-// Trigger file input
-const triggerFile = () => {
-  fileInput.value.click();
-};
+const triggerFile = () => fileInput.value.click();
 
-// Handle file select
 const handleFile = (e) => {
   const file = e.target.files[0];
-  if (file) {
-    videoUrl.value = URL.createObjectURL(file);
-  }
+  if (file) videoUrl.value = URL.createObjectURL(file);
 };
 
-// Handle drag drop
 const handleDrop = (e) => {
   const file = e.dataTransfer.files[0];
-  if (file) {
-    videoUrl.value = URL.createObjectURL(file);
-  }
+  if (file) videoUrl.value = URL.createObjectURL(file);
 };
 
-// Play / Pause
 const togglePlay = () => {
-  const video = videoRef.value;
-  if (!video) return;
-
-  if (video.paused) {
-    video.play();
-    isPlaying.value = true;
-  } else {
-    video.pause();
-    isPlaying.value = false;
-  }
+  const v = videoRef.value;
+  if (!v) return;
+  if (v.paused) { v.play(); isPlaying.value = true; }
+  else          { v.pause(); isPlaying.value = false; }
 };
 
-// Mute toggle
-const toggleMute = () => {
-  const video = videoRef.value;
-  if (video) video.muted = !video.muted;
-};
+const toggleMute  = () => { if (videoRef.value) videoRef.value.muted = !videoRef.value.muted; };
+const skipForward = () => { if (videoRef.value) videoRef.value.currentTime += 5; };
+const skipback    = () => { if (videoRef.value) videoRef.value.currentTime = Math.max(0, videoRef.value.currentTime - 5); };
+const fullscreen  = () => { if (videoRef.value) videoRef.value.requestFullscreen(); };
+const updateTime  = () => { if (videoRef.value) currentTime.value = formatTime(videoRef.value.currentTime); };
+const setDuration = () => { if (videoRef.value) duration.value = formatTime(videoRef.value.duration); };
 
-// Skip forward
-const skipForward = () => {
-  const video = videoRef.value;
-  if (video) video.currentTime += 5;
-};
 
-// ✅ Skip back
-const skipback = () => {
-  const video = videoRef.value;
-  if (video) {
-    video.currentTime = Math.max(0, video.currentTime - 5);
-  }
-};
-
-// Fullscreen
-const fullscreen = () => {
-  const video = videoRef.value;
-  if (video) video.requestFullscreen();
-};
-
-// Update current time
-const updateTime = () => {
-  const video = videoRef.value;
-  if (video) {
-    currentTime.value = formatTime(video.currentTime);
-  }
-};
-
-// Set duration
-const setDuration = () => {
-  const video = videoRef.value;
-  if (video) {
-    duration.value = formatTime(video.duration);
-  }
-};
 </script>

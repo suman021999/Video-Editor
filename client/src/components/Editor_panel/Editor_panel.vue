@@ -1,7 +1,7 @@
 <template>
   <div class="w-full bg-gray-100 p-4 rounded-xl">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-2">
+    <div class="flex items-center justify-between mb-4 px-2">
       <h2 class="text-sm font-semibold text-gray-700">Timeline</h2>
 
       <div class="flex gap-2">
@@ -67,7 +67,6 @@
         <div class="flex items-center">
           <div class="w-16 text-xs text-gray-500 pl-2">Text</div>
           <div class="flex-1 relative h-10 bg-gray-100 rounded-md mx-4">
-            
             <div
               v-for="(clip, i) in textClips"
               :key="i"
@@ -76,15 +75,15 @@
             >
               {{ clip.text }}
             </div>
-
           </div>
         </div>
       </div>
 
       <!-- Playhead -->
       <div
-        class="absolute top-0 bottom-0 w-0.5 bg-red-500"
+        class="absolute top-0 bottom-0 w-0.5 bg-red-500 cursor-grab"
         :style="{ left: playhead + 'px' }"
+        @mousedown="startDrag"
       >
         <div class="w-3 h-3 bg-red-500 rounded-full -ml-1.25 -mt-1"></div>
       </div>
@@ -102,20 +101,63 @@ const playhead = ref(120);
 const times = ["00:00", "00:15", "00:30", "00:45", "01:00"];
 const totalDuration = 60;
 
-// ✅ Text clips data
+// ✅ Text clips
 const textClips = [
   { start: 5, duration: 15, text: "Hello World 🎬" },
   { start: 25, duration: 20, text: "This is subtitle text" },
   { start: 48, duration: 10, text: "End Scene ✨" },
 ];
 
-// Move playhead on click
+// ✅ Label width (w-16 = 64px + mx-4 ≈ 16px)
+const LABEL_WIDTH = 80;
+
+// ======================
+// ✅ CLICK MOVE (unchanged)
+// ======================
 const movePlayhead = (e) => {
   const rect = timelineRef.value.getBoundingClientRect();
-  playhead.value = e.clientX - rect.left;
+
+  const rawX = e.clientX - rect.left;
+
+  const minX = LABEL_WIDTH;
+  const maxX = rect.width;
+
+  playhead.value = Math.min(Math.max(rawX, minX), maxX);
 };
 
-// Position clips
+// ======================
+// ✅ DRAG LOGIC (added)
+// ======================
+let isDragging = false;
+
+const startDrag = () => {
+  isDragging = true;
+  window.addEventListener("mousemove", onDrag);
+  window.addEventListener("mouseup", stopDrag);
+};
+
+const onDrag = (e) => {
+  if (!isDragging) return;
+
+  const rect = timelineRef.value.getBoundingClientRect();
+
+  const rawX = e.clientX - rect.left;
+
+  const minX = LABEL_WIDTH;
+  const maxX = rect.width;
+
+  playhead.value = Math.min(Math.max(rawX, minX), maxX);
+};
+
+const stopDrag = () => {
+  isDragging = false;
+  window.removeEventListener("mousemove", onDrag);
+  window.removeEventListener("mouseup", stopDrag);
+};
+
+// ======================
+// ✅ Clip positioning
+// ======================
 const getStyle = (start, duration) => {
   return {
     left: (start / totalDuration) * 100 + "%",
