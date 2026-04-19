@@ -19,7 +19,7 @@ import { ref } from "vue";
 import Display from "../components/Display/Display.vue";
 import Editor_panel from "../components/Editor_panel/Editor_panel.vue";
 import Navbar from "../components/Navbar/Navbar.vue";
-import Sidebar from "../common/Sidebar/Sidebar.vue";
+import Sidebar from "../Sidebar/Sidebar.vue";
 
 const isSidebarOpen = ref(false);
 const activeTool    = ref(null);
