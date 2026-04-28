@@ -38,11 +38,23 @@
         </div>
 
         <!-- AUDIO 1 -->
+        <div class="flex justify-end items-center mb-2 px-2">
+          <button
+            @click="uploadAudio('audio1')"
+            class="flex items-center cursor-pointer gap-1 text-xs bg-blue-100 px-3 py-1 rounded-full"
+          >
+            <Upload class="w-4 h-4" />
+            Upload Audio
+          </button>
+        </div>
+
+        <!-- AUDIO ROW -->
         <div class="flex items-center">
           <div class="w-16 text-xs text-gray-500 pl-2">Audio 1</div>
-          <div class="flex-1 relative h-10 bg-gray-100 rounded-md mx-4">
+
+          <div class="flex-1 h-10 bg-gray-100 rounded-md mx-4">
             <div
-              class="absolute h-8 top-1 rounded-md px-2 flex items-center text-xs bg-yellow-200"
+              class="h-8 rounded-md px-2 flex items-center text-xs bg-yellow-200"
               :style="getStyle(0, 60)"
             >
               Camera_Mic_Original
@@ -50,9 +62,21 @@
           </div>
         </div>
 
+        <!-- AUDIO 2 HEADER -->
+        <div class="flex justify-end items-center mb-2 px-2">
+          <button
+            @click="uploadAudio('soundtrack')"
+            class="flex items-center gap-1 text-xs cursor-pointer bg-blue-100 px-3 py-1 rounded-full"
+          >
+            <Upload class="w-4 h-4" />
+            Upload Audio
+          </button>
+        </div>
+
         <!-- AUDIO 2 -->
         <div class="flex items-center">
           <div class="w-16 text-xs text-gray-500 pl-2">Soundtrack</div>
+
           <div class="flex-1 relative h-10 bg-gray-100 rounded-md mx-4">
             <div
               class="absolute h-8 top-1 rounded-md px-2 flex items-center text-xs bg-green-200"
@@ -93,7 +117,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { Search, ZoomIn } from "lucide-vue-next";
+import { Search, Upload, ZoomIn } from "lucide-vue-next";
 
 const timelineRef = ref(null);
 const playhead = ref(120);
@@ -101,18 +125,52 @@ const playhead = ref(120);
 const times = ["00:00", "00:15", "00:30", "00:45", "01:00"];
 const totalDuration = 60;
 
-// ✅ Text clips
+// ======================
+// ✅ AUDIO STORAGE
+// ======================
+const audioTracks = ref([]);
+
+// ======================
+// ✅ AUDIO UPLOAD FUNCTION
+// ======================
+const uploadAudio = (type) => {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "audio/*";
+
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const audio = {
+      name: file.name,
+      url: URL.createObjectURL(file),
+      start: 0,
+      duration: 20,
+      type,
+    };
+
+    audioTracks.value.push(audio);
+
+    console.log("Uploaded:", audio);
+  };
+
+  input.click();
+};
+
+// ======================
+// ✅ TEXT CLIPS
+// ======================
 const textClips = [
   { start: 5, duration: 15, text: "Hello World 🎬" },
   { start: 25, duration: 20, text: "This is subtitle text" },
   { start: 48, duration: 10, text: "End Scene ✨" },
 ];
 
-// ✅ Label width (w-16 = 64px + mx-4 ≈ 16px)
 const LABEL_WIDTH = 80;
 
 // ======================
-// ✅ CLICK MOVE (unchanged)
+// PLAYHEAD CLICK
 // ======================
 const movePlayhead = (e) => {
   const rect = timelineRef.value.getBoundingClientRect();
@@ -126,7 +184,7 @@ const movePlayhead = (e) => {
 };
 
 // ======================
-// ✅ DRAG LOGIC (added)
+// DRAG LOGIC
 // ======================
 let isDragging = false;
 
@@ -156,7 +214,7 @@ const stopDrag = () => {
 };
 
 // ======================
-// ✅ Clip positioning
+// CLIP POSITION
 // ======================
 const getStyle = (start, duration) => {
   return {

@@ -1,5 +1,7 @@
 <template>
-  <Navbar @toggleSidebar="isSidebarOpen = true" />
+
+  <Auth/>
+  <!-- <Navbar @toggleSidebar="isSidebarOpen = true" />
 
   <Sidebar
     :isOpen="isSidebarOpen"
@@ -10,12 +12,12 @@
 
   <Display :activeTool="activeTool" />
 
-  <Editor_panel />
+  <Editor_panel /> -->
 </template>
 
 <script setup>
 import { ref } from "vue";
-
+import Auth from "../Auth/Auth.vue";
 import Display from "../components/Display/Display.vue";
 import Editor_panel from "../components/Editor_panel/Editor_panel.vue";
 import Navbar from "../components/Navbar/Navbar.vue";
