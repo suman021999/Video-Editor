@@ -5,7 +5,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 
-import UserRouter from "./routes/UserRouter.js";
+import UserRouter from "./routes/user.route.js";
 
 dotenv.config();
 
@@ -27,7 +27,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Route
-app.use("/user", UserRouter);
+app.use("/api/v1/user", UserRouter);
 
 // Start Server
 app.listen(PORT, () => {
