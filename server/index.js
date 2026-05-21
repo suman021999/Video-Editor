@@ -10,7 +10,7 @@ import UserRouter from "./routes/user.route.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+
 
 
 // CORS
@@ -28,6 +28,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // Route
 app.use("/api/v1/user", UserRouter);
+
+
+const PORT = process.env.PORT || 5000;
 
 // Start Server
 app.listen(PORT, () => {

@@ -1,10 +1,5 @@
 import { Router } from "express";
-import {
-  registerAccount,
-  loginAccount,
-  googleLogin,
-  logout,
-} from "../controllers/user.controller.js";
+import { googleLogin, loginUser, logoutUser, registerUser, } from "../controllers/user.controller.js";
 import { protect } from "../middleware/auth.middleware.js";
 
 const router = Router();
@@ -13,12 +8,12 @@ const router = Router();
 router.route("/google").post(googleLogin);
 
 // Register route
-router.route("/register").post(registerAccount);
+router.route("/register").post(registerUser);
 
 // Login route
-router.route("/login").post(loginAccount);
+router.route("/login").post(loginUser);
 
 // Logout route (protected)
-router.route("/logout").post(protect, logout);
+router.route("/logout").post(protect, logoutUser);
 
 export default router;
